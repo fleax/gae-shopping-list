@@ -1,5 +1,6 @@
 package com.github.fleax.shoppinglist.model;
 
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -11,15 +12,16 @@ import com.googlecode.objectify.annotation.Index;
  * 
  */
 @Entity
+@Cache
 public class ItemBean implements IBean {
 
 	@Id
-	public Long id;
+	private Long id;
 
 	@Index
-	public String user;
+	private String user;
 
-	public String name;
+	private String name;
 
 	/**
 	 * @return the id
