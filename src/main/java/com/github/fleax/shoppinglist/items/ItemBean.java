@@ -2,6 +2,7 @@ package com.github.fleax.shoppinglist.items;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.googlecode.objectify.annotation.Id;
 
 /**
  * A shopping list item
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class ItemBean {
 
+	@Id
 	private String id;
 
 	private String name;

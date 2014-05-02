@@ -8,24 +8,17 @@ import java.util.Set;
 
 import org.joda.time.DateTime;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.github.fleax.shoppinglist.items.ItemBean;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
 
 @Entity
 @Cache
-@JsonInclude(Include.NON_NULL)
 public class ListBean {
 
 	@Id
 	private Long id;
-
-	@Index
-	private String user;
 
 	private Map<String, String> items;
 
@@ -68,21 +61,6 @@ public class ListBean {
 	 */
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	/**
-	 * @return the user
-	 */
-	public String getUser() {
-		return user;
-	}
-
-	/**
-	 * @param user
-	 *            the user to set
-	 */
-	public void setUser(String user) {
-		this.user = user;
 	}
 
 	/**

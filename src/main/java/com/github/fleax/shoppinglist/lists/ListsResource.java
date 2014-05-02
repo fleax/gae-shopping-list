@@ -8,10 +8,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.SecurityContext;
 
 import org.joda.time.DateTime;
 
@@ -25,17 +23,15 @@ public class ListsResource {
 	private ListCompletedProcessor processor = new ListCompletedProcessor();
 
 	@GET
-	public Response list(@Context SecurityContext security) {
+	public Response list() {
 		return Response.ok(
-				ObjectifyService.ofy().load().type(ListBean.class)
-						.filter("user", security.getUserPrincipal().getName())
-						.list()).build();
+				ObjectifyService.ofy().load().type(ListBean.class).list())
+				.build();
 	}
 
 	@POST
-	public Response create(@Context SecurityContext security) {
+	public Response create() {
 		ListBean list = new ListBean();
-		list.setUser(security.getUserPrincipal().getName());
 		list.setDate(new DateTime());
 		Key<ListBean> key = ObjectifyService.ofy().save().entity(list).now();
 		list.setId(key.getId());
@@ -44,13 +40,10 @@ public class ListsResource {
 
 	@PUT
 	@Path("/{list}/add")
-	public Response addItem(@Context SecurityContext security,
-			@PathParam("list") Long id, ItemBean item) {
+	public Response addItem(@PathParam("list") Long id, ItemBean item) {
 		ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
 				.id(id).safeGet();
-		if (list == null
-				|| !list.getUser()
-						.equals(security.getUserPrincipal().getName())) {
+		if (list == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		list.addItem(item);
@@ -61,13 +54,11 @@ public class ListsResource {
 
 	@DELETE
 	@Path("/{list}/delete/{item}")
-	public Response deleteItem(@Context SecurityContext security,
-			@PathParam("list") Long id, @PathParam("item") String item) {
+	public Response deleteItem(@PathParam("list") Long id,
+			@PathParam("item") String item) {
 		ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
 				.id(id).safeGet();
-		if (list == null
-				|| !list.getUser()
-						.equals(security.getUserPrincipal().getName())) {
+		if (list == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		list.deleteItem(item);
@@ -78,13 +69,11 @@ public class ListsResource {
 
 	@POST
 	@Path("/{list}/completed")
-	public Response completeList(@Context SecurityContext security,
-			@PathParam("list") Long id, List<ItemBean> checkedItems) {
+	public Response completeList(@PathParam("list") Long id,
+			List<ItemBean> checkedItems) {
 		ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
 				.id(id).safeGet();
-		if (list == null
-				|| !list.getUser()
-						.equals(security.getUserPrincipal().getName())) {
+		if (list == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		list.checkItems(checkedItems);
