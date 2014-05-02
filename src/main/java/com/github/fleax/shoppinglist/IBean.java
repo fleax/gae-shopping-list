@@ -1,4 +1,4 @@
-package com.github.fleax.shoppinglist.model;
+package com.github.fleax.shoppinglist;
 
 /**
  * Bean interface with common attributes: id and user
