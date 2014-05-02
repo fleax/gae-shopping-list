@@ -1,95 +1,121 @@
 package com.github.fleax.shoppinglist.lists;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.joda.time.DateTime;
 
+import com.github.fleax.shoppinglist.ObjectifyHelper;
 import com.github.fleax.shoppinglist.items.ItemBean;
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Load;
 
 @Entity
 @Cache
 public class ListBean {
 
-	@Id
-	private Long id;
+    @Id
+    private Long id;
 
-	private Map<String, String> items;
+    @Load
+    private List<Ref<ItemBean>> items;
 
-	private Set<String> checkedItems;
+    @Load
+    private List<Ref<ItemBean>> checkedItems;
 
-	private DateTime date;
+    private DateTime date;
 
-	public void addItem(ItemBean item) {
-		if (items == null) {
-			items = new HashMap<>();
-		}
-		items.put(item.getId(), item.getName());
+    /**
+     * Adds an item
+     * 
+     * @param item
+     */
+    public void addItem(ItemBean item) {
+	if (this.items == null) {
+	    this.items = new ArrayList<>();
 	}
+	this.items.add(Ref.create(item));
+    }
 
-	public void deleteItem(String id) {
-		if (items != null) {
-			items.remove(id);
-		}
-	}
+    /**
+     * Removes an item
+     * 
+     * @param item
+     */
+    public void deleteItem(Long item) {
+	this.items.remove(Ref.create(Key.create(ItemBean.class, item)));
+    }
 
-	public void checkItems(List<ItemBean> itemsToCheck) {
-		if (items != null) {
-			checkedItems = new HashSet<>();
-			for (ItemBean item : itemsToCheck) {
-				checkedItems.add(item.getId());
-			}
-		}
-	}
+    /**
+     * Checks an item
+     * 
+     * @param item
+     */
+    public void checkItem(ItemBean item) {
+	this.checkedItems.add(Ref.create(item));
+    }
 
-	/**
-	 * @return the id
-	 */
-	public Long getId() {
-		return id;
-	}
+    /**
+     * @return the id
+     */
+    public Long getId() {
+	return id;
+    }
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(Long id) {
+	this.id = id;
+    }
 
-	/**
-	 * @return the items
-	 */
-	public Map<String, String> getItems() {
-		return items;
-	}
+    /**
+     * @return the date
+     */
+    public DateTime getDate() {
+	return date;
+    }
 
-	/**
-	 * @param items
-	 *            the items to set
-	 */
-	public void setItems(Map<String, String> items) {
-		this.items = items;
-	}
+    /**
+     * @param date
+     *            the date to set
+     */
+    public void setDate(DateTime date) {
+	this.date = date;
+    }
 
-	/**
-	 * @return the date
-	 */
-	public DateTime getDate() {
-		return date;
-	}
+    /**
+     * @return the items
+     */
+    public List<ItemBean> getItems() {
+	return ObjectifyHelper.resolveReferences(this.items);
+    }
 
-	/**
-	 * @param date
-	 *            the date to set
-	 */
-	public void setDate(DateTime date) {
-		this.date = date;
-	}
+    /**
+     * @return the checkedItems
+     */
+    public List<ItemBean> getCheckedItems() {
+	return ObjectifyHelper.resolveReferences(this.checkedItems);
+    }
+
+    /**
+     * @param items
+     *            the items to set
+     */
+    public void setItems(List<Ref<ItemBean>> items) {
+	this.items = items;
+    }
+
+    /**
+     * @param checkedItems
+     *            the checkedItems to set
+     */
+    public void setCheckedItems(List<Ref<ItemBean>> checkedItems) {
+	this.checkedItems = checkedItems;
+    }
 }

@@ -20,66 +20,68 @@ import com.googlecode.objectify.ObjectifyService;
 @Path("/lists")
 public class ListsResource {
 
-	private ListCompletedProcessor processor = new ListCompletedProcessor();
+    private final ListCompletedProcessor processor = new ListCompletedProcessor();
 
-	@GET
-	public Response list() {
-		return Response.ok(
-				ObjectifyService.ofy().load().type(ListBean.class).list())
-				.build();
-	}
+    @GET
+    public Response list() {
+	return Response.ok(
+		ObjectifyService.ofy().load().type(ListBean.class).list())
+		.build();
+    }
 
-	@POST
-	public Response create() {
-		ListBean list = new ListBean();
-		list.setDate(new DateTime());
-		Key<ListBean> key = ObjectifyService.ofy().save().entity(list).now();
-		list.setId(key.getId());
-		return Response.ok(list).build();
-	}
+    @POST
+    public Response create() {
+	ListBean list = new ListBean();
+	list.setDate(new DateTime());
+	Key<ListBean> key = ObjectifyService.ofy().save().entity(list).now();
+	list.setId(key.getId());
+	return Response.ok(list).build();
+    }
 
-	@PUT
-	@Path("/{list}/add")
-	public Response addItem(@PathParam("list") Long id, ItemBean item) {
-		ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
-				.id(id).safeGet();
-		if (list == null) {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		list.addItem(item);
-		list.setDate(new DateTime());
-		ObjectifyService.ofy().save().entity(list);
-		return Response.ok(list).build();
+    @PUT
+    @Path("/{list}/add")
+    public Response addItem(@PathParam("list") Long id, ItemBean item) {
+	ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
+		.id(id).safeGet();
+	if (list == null) {
+	    return Response.status(Status.NOT_FOUND).build();
 	}
+	list.addItem(item);
+	list.setDate(new DateTime());
+	ObjectifyService.ofy().save().entity(list).now();
+	return Response.ok(list).build();
+    }
 
-	@DELETE
-	@Path("/{list}/delete/{item}")
-	public Response deleteItem(@PathParam("list") Long id,
-			@PathParam("item") String item) {
-		ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
-				.id(id).safeGet();
-		if (list == null) {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		list.deleteItem(item);
-		list.setDate(new DateTime());
-		ObjectifyService.ofy().save().entity(list);
-		return Response.ok(list).build();
+    @DELETE
+    @Path("/{list}/delete/{item}")
+    public Response deleteItem(@PathParam("list") Long id,
+	    @PathParam("item") Long item) {
+	ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
+		.id(id).safeGet();
+	if (list == null) {
+	    return Response.status(Status.NOT_FOUND).build();
 	}
+	list.deleteItem(item);
+	list.setDate(new DateTime());
+	ObjectifyService.ofy().save().entity(list);
+	return Response.ok(list).build();
+    }
 
-	@POST
-	@Path("/{list}/completed")
-	public Response completeList(@PathParam("list") Long id,
-			List<ItemBean> checkedItems) {
-		ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
-				.id(id).safeGet();
-		if (list == null) {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		list.checkItems(checkedItems);
-		list.setDate(new DateTime());
-		ObjectifyService.ofy().save().entity(list);
-		processor.processList(list);
-		return Response.ok(list).build();
+    @POST
+    @Path("/{list}/completed")
+    public Response completeList(@PathParam("list") Long id,
+	    List<ItemBean> checkedItems) {
+	ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
+		.id(id).safeGet();
+	if (list == null) {
+	    return Response.status(Status.NOT_FOUND).build();
 	}
+	for (ItemBean item : checkedItems) {
+	    list.checkItem(item);
+	}
+	list.setDate(new DateTime());
+	ObjectifyService.ofy().save().entity(list);
+	processor.processList(list);
+	return Response.ok(list).build();
+    }
 }
