@@ -28,6 +28,21 @@ public class ItemBean {
     private DateTime date;
 
     /**
+     * Default constructor
+     */
+    public ItemBean() {
+    }
+
+    /**
+     * @param category
+     * @param name
+     */
+    public ItemBean(String category, String name) {
+	this.category = category;
+	this.name = name;
+    }
+
+    /**
      * @return the id
      */
     public Long getId() {

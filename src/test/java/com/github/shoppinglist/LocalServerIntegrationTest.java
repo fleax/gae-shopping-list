@@ -1,10 +1,13 @@
 package com.github.shoppinglist;
 
+import java.util.List;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -47,5 +50,17 @@ public class LocalServerIntegrationTest {
     protected Builder prepareRequest(String path) {
 	return client.target("http://localhost:8888").path(path).request()
 		.cookie(cookie);
+    }
+
+    protected <T> List<T> list(String path, GenericType<List<T>> type) {
+	return prepareRequest(path).get(type);
+    }
+
+    protected <T> T get(String path, Long id, Class<T> type) {
+	return prepareRequest(path + "/" + id.toString()).get(type);
+    }
+
+    protected <T> T create(String path, T bean, Class<T> type) {
+	return prepareRequest(path).post(Entity.json(bean), type);
     }
 }
