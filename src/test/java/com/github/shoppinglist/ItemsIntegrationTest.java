@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import com.github.fleax.shoppinglist.items.ItemBean;
 
-public class ItemsTest extends LocalServerIntegrationTest {
+public class ItemsIntegrationTest extends LocalServerIntegrationTest {
 
     @Test
     public void list() {
