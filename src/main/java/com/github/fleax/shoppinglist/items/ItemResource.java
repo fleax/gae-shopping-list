@@ -10,6 +10,7 @@ import java.util.Locale;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
@@ -54,6 +55,35 @@ public class ItemResource {
 	return Response
 		.created(URI.create("/items/" + item.getId().toString()))
 		.entity(item).build();
+    }
+
+    @PUT
+    @Path("/{id}/disable")
+    public Response disable(@PathParam("id") Long id) {
+	return disableItem(id, true);
+    }
+
+    @PUT
+    @Path("/{id}/enable")
+    public Response enable(@PathParam("id") Long id) {
+	return disableItem(id, false);
+    }
+
+    /**
+     * @param id
+     * @param disabled
+     * @return response after disabling or enabling an item
+     */
+    private Response disableItem(Long id, boolean disabled) {
+	ItemBean item = ObjectifyHelper.get(ItemBean.class, id);
+	if (item == null) {
+	    return Response.status(Status.NOT_FOUND).build();
+	} else {
+	    item.setDisabled(true);
+	    item.setDate(new DateTime());
+	    ObjectifyHelper.save(item);
+	    return Response.ok(item).build();
+	}
     }
 
     /**

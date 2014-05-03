@@ -25,6 +25,8 @@ public class ItemBean {
 
     private String name;
 
+    private boolean disabled;
+
     private DateTime date;
 
     /**
@@ -149,5 +151,20 @@ public class ItemBean {
 	    return false;
 	}
 	return true;
+    }
+
+    /**
+     * @return the disabled
+     */
+    public boolean isDisabled() {
+	return disabled;
+    }
+
+    /**
+     * @param disabled
+     *            the disabled to set
+     */
+    public void setDisabled(boolean disabled) {
+	this.disabled = disabled;
     }
 }

@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.joda.time.DateTime;
 
+import com.github.fleax.shoppinglist.ObjectifyHelper;
 import com.github.fleax.shoppinglist.items.ItemBean;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
@@ -24,9 +25,7 @@ public class ListsResource {
 
     @GET
     public Response list() {
-	return Response.ok(
-		ObjectifyService.ofy().load().type(ListBean.class).list())
-		.build();
+	return Response.ok(ObjectifyHelper.list(ListBean.class)).build();
     }
 
     @POST
