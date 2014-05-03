@@ -47,7 +47,13 @@ public class ListBean {
      * @param item
      */
     public void deleteItem(Long item) {
-	this.items.remove(Ref.create(Key.create(ItemBean.class, item)));
+	Ref<ItemBean> ref = Ref.create(Key.create(ItemBean.class, item));
+	if (this.items != null) {
+	    this.items.remove(ref);
+	}
+	if (this.checkedItems != null) {
+	    this.checkedItems.remove(ref);
+	}
     }
 
     /**
@@ -56,6 +62,9 @@ public class ListBean {
      * @param item
      */
     public void checkItem(ItemBean item) {
+	if (this.checkedItems == null) {
+	    this.checkedItems = new ArrayList<>();
+	}
 	this.checkedItems.add(Ref.create(item));
     }
 
