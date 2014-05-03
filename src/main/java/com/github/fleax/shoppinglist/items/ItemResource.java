@@ -9,43 +9,41 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.joda.time.DateTime;
 
-import com.googlecode.objectify.ObjectifyService;
+import com.github.fleax.shoppinglist.ObjectifyHelper;
+import com.googlecode.objectify.Key;
 
 @Path("/items")
 public class ItemResource {
 
     @GET
     public Response list() {
-	return Response.ok(
-		ObjectifyService.ofy().load().type(ItemBean.class).list())
-		.build();
+	return Response.ok(ObjectifyHelper.list(ItemBean.class)).build();
     }
 
     @GET
     @Path("/category/{name}")
     public Response searchByCategory(@PathParam("name") String name) {
 	return Response.ok(
-		ObjectifyService.ofy().load().type(ItemBean.class)
-			.filter("category", name).list()).build();
+		ObjectifyHelper.list(ItemBean.class, "category", name)).build();
     }
 
     @GET
     @Path("/{id}")
-    public Response searchByCategory(@PathParam("id") Long id) {
-	return Response.ok(
-		ObjectifyService.ofy().load().type(ItemBean.class).id(id)
-			.safeGet()).build();
+    public Response get(@PathParam("id") Long id) {
+	ItemBean item = ObjectifyHelper.get(ItemBean.class, id);
+	return item != null ? Response.ok(item).build() : Response.status(
+		Status.NOT_FOUND).build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(final ItemBean item) {
 	item.setDate(new DateTime());
-	com.googlecode.objectify.Key<ItemBean> key = ObjectifyService.ofy()
-		.save().entity(item).now();
+	Key<ItemBean> key = ObjectifyHelper.save(item);
 	item.setId(key.getId());
 	return Response
 		.created(URI.create("/items/" + item.getId().toString()))

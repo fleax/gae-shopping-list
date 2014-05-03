@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 
 /**
@@ -13,6 +15,41 @@ import com.googlecode.objectify.Ref;
  * 
  */
 public class ObjectifyHelper {
+
+    /**
+     * @param bean
+     * @return key of saved object
+     */
+    public static <T> Key<T> save(T bean) {
+	return ObjectifyService.ofy().save().entity(bean).now();
+    }
+
+    /**
+     * @param type
+     * @return get object by type and id
+     */
+    public static <T> T get(Class<T> type, Long id) {
+	return ObjectifyService.ofy().load().type(type).id(id).getValue();
+    }
+
+    /**
+     * @param type
+     * @return list of objects of given type
+     */
+    public static <T> List<T> list(Class<T> type) {
+	return ObjectifyService.ofy().load().type(type).list();
+    }
+
+    /**
+     * @param type
+     * @param filter
+     * @param value
+     * @return list of objects of given type, applying filter
+     */
+    public static <T> List<T> list(Class<T> type, String filter, Object value) {
+	return ObjectifyService.ofy().load().type(type).filter(filter, value)
+		.list();
+    }
 
     /**
      * Transforms a list of references to a list of objects
