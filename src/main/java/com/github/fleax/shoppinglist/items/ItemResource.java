@@ -1,5 +1,7 @@
 package com.github.fleax.shoppinglist.items;
 
+import java.net.URI;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,6 +32,14 @@ public class ItemResource {
 			.filter("category", name).list()).build();
     }
 
+    @GET
+    @Path("/{id}")
+    public Response searchByCategory(@PathParam("id") Long id) {
+	return Response.ok(
+		ObjectifyService.ofy().load().type(ItemBean.class).id(id)
+			.safeGet()).build();
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(final ItemBean item) {
@@ -37,6 +47,8 @@ public class ItemResource {
 	com.googlecode.objectify.Key<ItemBean> key = ObjectifyService.ofy()
 		.save().entity(item).now();
 	item.setId(key.getId());
-	return Response.ok(item).build();
+	return Response
+		.created(URI.create("/items/" + item.getId().toString()))
+		.entity(item).build();
     }
 }

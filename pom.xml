@@ -11,6 +11,7 @@
 	<properties>
 		<appengine.target.version>1.9.1</appengine.target.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<local.datastore>${project.basedir}/local_db.bin</local.datastore>
 	</properties>
 
 	<dependencies>
@@ -121,7 +122,7 @@
 					<jvmFlags>
 						<jvmFlag>-Xdebug</jvmFlag>
 						<jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</jvmFlag>
-						<jvmFlag>-Ddatastore.backing_store=${project.basedir}/local_db.bin</jvmFlag>
+						<jvmFlag>-Ddatastore.backing_store=${local.datastore}</jvmFlag>
 					</jvmFlags>
 					<disableUpdateCheck>true</disableUpdateCheck>
 				</configuration>
@@ -150,6 +151,7 @@
 				<version>1.7</version>
 				<executions>
 					<execution>
+						<id>copy_resources</id>
 						<phase>generate-resources</phase>
 						<goals>
 							<goal>run</goal>
@@ -165,6 +167,18 @@
 										<exclude name="WEB-INF" />
 									</fileset>
 								</copy>
+							</target>
+						</configuration>
+					</execution>
+					<execution>
+						<id>delete_local_datastore</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<delete file="${local.datastore}"/>
 							</target>
 						</configuration>
 					</execution>
