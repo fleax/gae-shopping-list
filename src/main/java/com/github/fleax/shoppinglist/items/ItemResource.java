@@ -1,6 +1,11 @@
 package com.github.fleax.shoppinglist.items;
 
 import java.net.URI;
+import java.text.Collator;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -21,14 +26,15 @@ public class ItemResource {
 
     @GET
     public Response list() {
-	return Response.ok(ObjectifyHelper.list(ItemBean.class)).build();
+	return Response.ok(sort(ObjectifyHelper.list(ItemBean.class))).build();
     }
 
     @GET
     @Path("/category/{name}")
     public Response searchByCategory(@PathParam("name") String name) {
 	return Response.ok(
-		ObjectifyHelper.list(ItemBean.class, "category", name)).build();
+		sort(ObjectifyHelper.list(ItemBean.class, "category", name)))
+		.build();
     }
 
     @GET
@@ -49,4 +55,26 @@ public class ItemResource {
 		.created(URI.create("/items/" + item.getId().toString()))
 		.entity(item).build();
     }
+
+    /**
+     * @param c
+     * @return list sorted by default locale collator
+     */
+    private List<ItemBean> sort(List<ItemBean> c) {
+	final Collator collator = Collator.getInstance(Locale.getDefault());
+	Collections.sort(c, new Comparator<ItemBean>() {
+	    @Override
+	    public int compare(ItemBean o1, ItemBean o2) {
+		int compare = collator.compare(o1.getCategory(),
+			o2.getCategory());
+		if (compare != 0) {
+		    return compare;
+		} else {
+		    return collator.compare(o1.getName(), o2.getName());
+		}
+	    }
+	});
+	return c;
+    }
+
 }

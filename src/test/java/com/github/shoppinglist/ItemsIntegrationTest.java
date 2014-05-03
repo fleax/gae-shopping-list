@@ -82,8 +82,8 @@ public class ItemsIntegrationTest extends LocalServerIntegrationTest {
 		.get(new GenericType<List<ItemBean>>() {
 		});
 	Assert.assertEquals(2, fruits.size());
-	Assert.assertTrue(fruits.contains(new ItemBean(FRUIT, ORANGES)));
-	Assert.assertTrue(fruits.contains(new ItemBean(FRUIT, APPLES)));
+	Assert.assertEquals(APPLES, fruits.get(0).getName());
+	Assert.assertEquals(ORANGES, fruits.get(1).getName());
     }
 
     @Test
@@ -93,6 +93,20 @@ public class ItemsIntegrationTest extends LocalServerIntegrationTest {
 		});
 	Assert.assertEquals(1, drinks.size());
 	Assert.assertTrue(drinks.contains(new ItemBean(DRINKS, WATER)));
+    }
+
+    @Test
+    public void test9_sorted_list() {
+	List<ItemBean> response = list(REST_ITEMS,
+		new GenericType<List<ItemBean>>() {
+		});
+	Assert.assertEquals(3, response.size());
+	Assert.assertEquals(DRINKS, response.get(0).getCategory());
+	Assert.assertEquals(WATER, response.get(0).getName());
+	Assert.assertEquals(FRUIT, response.get(1).getCategory());
+	Assert.assertEquals(APPLES, response.get(1).getName());
+	Assert.assertEquals(FRUIT, response.get(2).getCategory());
+	Assert.assertEquals(ORANGES, response.get(2).getName());
     }
 
 }

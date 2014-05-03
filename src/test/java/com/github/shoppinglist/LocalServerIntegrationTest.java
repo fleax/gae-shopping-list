@@ -16,16 +16,16 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.glassfish.jersey.client.ClientProperties;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class LocalServerIntegrationTest {
 
-    private Client client;
+    private static Client client;
 
-    private Cookie cookie;
+    private static Cookie cookie;
 
-    @Before
-    public void login() {
+    @BeforeClass
+    public static void login() {
 	client = ClientBuilder.newClient();
 	client.register(JacksonJsonProvider.class);
 	client.property(ClientProperties.FOLLOW_REDIRECTS, false);
