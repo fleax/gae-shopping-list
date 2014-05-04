@@ -41,11 +41,11 @@ public class ListBean {
      * 
      * @param item
      */
-    public void addItem(ItemBean item) {
+    public void addItem(Ref<ItemBean> item) {
 	if (this.items == null) {
 	    this.items = new ArrayList<>();
 	}
-	this.items.add(Ref.create(item));
+	this.items.add(item);
     }
 
     /**

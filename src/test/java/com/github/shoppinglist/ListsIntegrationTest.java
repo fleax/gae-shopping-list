@@ -24,32 +24,33 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.github.fleax.shoppinglist.items.ItemBean;
-import com.github.fleax.shoppinglist.lists.ListBean;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ListsIntegrationTest extends LocalServerIntegrationTest {
 
     @Test
     public void test01_list() {
-	List<ListBean> response = list(REST_LISTS,
-		new GenericType<List<ListBean>>() {
+	List<ClientListBean> response = list(REST_LISTS,
+		new GenericType<List<ClientListBean>>() {
 		});
 	assertTrue(response.isEmpty());
     }
 
     @Test
     public void test02_create() {
-	ListBean list = create(REST_LISTS, new ListBean(), ListBean.class);
+	ClientListBean list = create(REST_LISTS, new ClientListBean(),
+		ClientListBean.class);
 	assertEmptyList(list);
     }
 
     @Test
     public void test03_list_and_get() {
-	List<ListBean> response = list(REST_LISTS,
-		new GenericType<List<ListBean>>() {
+	List<ClientListBean> response = list(REST_LISTS,
+		new GenericType<List<ClientListBean>>() {
 		});
 	assertEquals(1, response.size());
-	ListBean list = get(REST_LISTS, response.get(0).getId(), ListBean.class);
+	ClientListBean list = get(REST_LISTS, response.get(0).getId(),
+		ClientListBean.class);
 	assertEmptyList(list);
     }
 
@@ -70,25 +71,25 @@ public class ListsIntegrationTest extends LocalServerIntegrationTest {
 		Entity.json(new ItemBean(FRUIT, APPLES)), ItemBean.class);
 
 	// Create list
-	ListBean list = create(REST_LISTS, new ListBean(), ListBean.class);
+	ClientListBean list = create(REST_LISTS, new ClientListBean(),
+		ClientListBean.class);
 
 	// Add to list
-	ClientResponse response = prepareRequest(
-		REST_LISTS + "/" + list.getId() + "/add").put(
-		Entity.json(water), ClientResponse.class);
+	list = prepareRequest(REST_LISTS + "/" + list.getId() + "/add").put(
+		Entity.json(water), ClientListBean.class);
 	assertEquals(1, list.getItems().size());
 	assertTrue(list.getItems().contains(new ItemBean(DRINKS, WATER)));
 	list = prepareRequest(REST_LISTS + "/" + list.getId() + "/add").put(
-		Entity.json(oranges), ListBean.class);
+		Entity.json(oranges), ClientListBean.class);
 	assertEquals(2, list.getItems().size());
 	assertTrue(list.getItems().contains(new ItemBean(FRUIT, ORANGES)));
 	list = prepareRequest(REST_LISTS + "/" + list.getId() + "/add").put(
-		Entity.json(apples), ListBean.class);
+		Entity.json(apples), ClientListBean.class);
 	assertEquals(3, list.getItems().size());
 	assertTrue(list.getItems().contains(new ItemBean(FRUIT, APPLES)));
     }
 
-    private void assertEmptyList(ListBean list) {
+    private void assertEmptyList(ClientListBean list) {
 	assertNotNull(list.getId());
 	assertNotNull(list.getDate());
 	assertTrue(list.getCheckedItems().isEmpty());

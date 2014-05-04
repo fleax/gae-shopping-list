@@ -18,11 +18,12 @@ import com.github.fleax.shoppinglist.UserEntityGroup;
 import com.github.fleax.shoppinglist.items.ItemBean;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.Ref;
 
 @Path("/lists")
 public class ListsResource {
 
-    private UserEntityGroup user = new UserEntityGroup();
+    private final UserEntityGroup user = new UserEntityGroup();
 
     private final ListCompletedProcessor processor = new ListCompletedProcessor();
 
@@ -57,10 +58,14 @@ public class ListsResource {
     public Response addItem(@PathParam("list") Long id, ItemBean item) {
 	ListBean list = ObjectifyHelper.get(user.getUserBean(), ListBean.class,
 		id);
-	if (list == null) {
+	// Force fecth from datastore to get proper Ref and return items list
+	// updated
+	ItemBean itemDS = ObjectifyHelper.get(user.getUserBean(),
+		ItemBean.class, item.getId());
+	if (list == null || itemDS == null) {
 	    return Response.status(Status.NOT_FOUND).build();
 	}
-	list.addItem(item);
+	list.addItem(Ref.create(itemDS));
 	list.setDate(new DateTime());
 	ObjectifyHelper.save(list);
 	return Response.ok(list).build();

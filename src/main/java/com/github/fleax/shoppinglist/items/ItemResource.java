@@ -21,12 +21,13 @@ import org.joda.time.DateTime;
 
 import com.github.fleax.shoppinglist.ObjectifyHelper;
 import com.github.fleax.shoppinglist.UserEntityGroup;
+import com.github.fleax.shoppinglist.utils.StringUtils;
 import com.googlecode.objectify.Key;
 
 @Path("/items")
 public class ItemResource {
 
-    private UserEntityGroup user = new UserEntityGroup();
+    private final UserEntityGroup user = new UserEntityGroup();
 
     @GET
     public Response list() {
@@ -119,13 +120,15 @@ public class ItemResource {
 	Collections.sort(c, new Comparator<ItemBean>() {
 	    @Override
 	    public int compare(ItemBean o1, ItemBean o2) {
-		int compare = collator.compare(o1.getCategory(),
-			o2.getCategory());
-		if (compare != 0) {
-		    return compare;
-		} else {
-		    return collator.compare(o1.getName(), o2.getName());
+		if (!StringUtils.isEmpty(o1.getCategory())
+			&& !StringUtils.isEmpty(o2.getCategory())) {
+		    int compare = collator.compare(o1.getCategory(),
+			    o2.getCategory());
+		    if (compare != 0) {
+			return compare;
+		    }
 		}
+		return collator.compare(o1.getName(), o2.getName());
 	    }
 	});
 	return c;
