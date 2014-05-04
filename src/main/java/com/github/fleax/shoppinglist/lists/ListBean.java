@@ -3,9 +3,11 @@ package com.github.fleax.shoppinglist.lists;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.joda.time.DateTime;
 
 import com.github.fleax.shoppinglist.ObjectifyHelper;
+import com.github.fleax.shoppinglist.UserBean;
 import com.github.fleax.shoppinglist.items.ItemBean;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
@@ -13,10 +15,15 @@ import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Load;
+import com.googlecode.objectify.annotation.Parent;
 
 @Entity
 @Cache
 public class ListBean {
+
+    @Parent
+    @JsonIgnore
+    private Ref<UserBean> user;
 
     @Id
     private Long id;
@@ -127,4 +134,20 @@ public class ListBean {
     public void setCheckedItems(List<Ref<ItemBean>> checkedItems) {
 	this.checkedItems = checkedItems;
     }
+
+    /**
+     * @return the user
+     */
+    public UserBean getUser() {
+	return user != null ? user.getValue() : null;
+    }
+
+    /**
+     * @param user
+     *            the user to set
+     */
+    public void setUser(UserBean user) {
+	this.user = Ref.create(user);
+    }
+
 }

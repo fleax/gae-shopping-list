@@ -14,55 +14,55 @@ import javax.ws.rs.core.Response.Status;
 import org.joda.time.DateTime;
 
 import com.github.fleax.shoppinglist.ObjectifyHelper;
-import com.github.fleax.shoppinglist.UserBean;
+import com.github.fleax.shoppinglist.UserEntityGroup;
 import com.github.fleax.shoppinglist.items.ItemBean;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 
 @Path("/lists")
 public class ListsResource {
 
-    private final ListCompletedProcessor processor = new ListCompletedProcessor();
+    private UserEntityGroup user = new UserEntityGroup();
 
-    private UserBean getUserBean() {
-	String email = UserServiceFactory.getUserService().getCurrentUser()
-		.getEmail();
-	UserBean userBean = ObjectifyHelper.get(UserBean.class, email);
-	if (userBean == null) {
-	    userBean = new UserBean();
-	    userBean.setId(email);
-	    ObjectifyHelper.save(userBean);
-	}
-	return userBean;
-    }
+    private final ListCompletedProcessor processor = new ListCompletedProcessor();
 
     @GET
     public Response list() {
-	return Response.ok(ObjectifyHelper.list(getUserBean(), ListBean.class))
+	return Response.ok(
+		ObjectifyHelper.list(user.getUserBean(), ListBean.class))
 		.build();
     }
 
     @POST
     public Response create() {
 	ListBean list = new ListBean();
+	list.setUser(user.getUserBean());
 	list.setDate(new DateTime());
-	Key<ListBean> key = ObjectifyService.ofy().save().entity(list).now();
+	Key<ListBean> key = ObjectifyHelper.save(list);
 	list.setId(key.getId());
 	return Response.ok(list).build();
+    }
+
+    @GET
+    @Path("/{list}")
+    public Response get(@PathParam("list") Long id) {
+	ListBean list = ObjectifyHelper.get(user.getUserBean(), ListBean.class,
+		id);
+	return list != null ? Response.ok(list).build() : Response.status(
+		Status.NOT_FOUND).build();
     }
 
     @PUT
     @Path("/{list}/add")
     public Response addItem(@PathParam("list") Long id, ItemBean item) {
-	ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
-		.id(id).safeGet();
+	ListBean list = ObjectifyHelper.get(user.getUserBean(), ListBean.class,
+		id);
 	if (list == null) {
 	    return Response.status(Status.NOT_FOUND).build();
 	}
 	list.addItem(item);
 	list.setDate(new DateTime());
-	ObjectifyService.ofy().save().entity(list).now();
+	ObjectifyHelper.save(list);
 	return Response.ok(list).build();
     }
 

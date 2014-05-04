@@ -10,18 +10,12 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import static com.github.shoppinglist.Constants.*;
 
 import com.github.fleax.shoppinglist.items.ItemBean;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ItemsIntegrationTest extends LocalServerIntegrationTest {
-
-    private static final String WATER = "Water";
-    private static final String DRINKS = "Drinks";
-    private static final String APPLES = "Apples";
-    private static final String REST_ITEMS = "/rest/items";
-    private static final String ORANGES = "Oranges";
-    private static final String FRUIT = "Fruit";
 
     @Test
     public void test01_list() {
@@ -163,6 +157,7 @@ public class ItemsIntegrationTest extends LocalServerIntegrationTest {
 	Assert.assertNotNull(item.getId());
 	Assert.assertEquals(category, item.getCategory());
 	Assert.assertEquals(name, item.getName());
+	Assert.assertNull(item.getUser());
     }
 
 }

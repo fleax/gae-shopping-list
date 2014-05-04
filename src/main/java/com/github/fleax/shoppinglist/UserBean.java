@@ -4,6 +4,13 @@ import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
+/**
+ * Bean containing user data, used to enforce strong consistency as it is parent
+ * of entity group
+ * 
+ * @author fleax
+ * 
+ */
 @Entity
 @Cache
 public class UserBean {
