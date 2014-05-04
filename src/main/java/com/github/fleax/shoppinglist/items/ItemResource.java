@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
@@ -28,6 +28,22 @@ public class ItemResource {
     @GET
     public Response list() {
 	return Response.ok(sort(ObjectifyHelper.list(ItemBean.class))).build();
+    }
+
+    @GET
+    @Path("/disabled")
+    public Response listDisabled() {
+	return Response.ok(
+		sort(ObjectifyHelper.list(ItemBean.class, "disabled", true)))
+		.build();
+    }
+
+    @GET
+    @Path("/enabled")
+    public Response listEnabled() {
+	return Response.ok(
+		sort(ObjectifyHelper.list(ItemBean.class, "disabled", false)))
+		.build();
     }
 
     @GET
@@ -57,13 +73,13 @@ public class ItemResource {
 		.entity(item).build();
     }
 
-    @PUT
+    @DELETE
     @Path("/{id}/disable")
     public Response disable(@PathParam("id") Long id) {
 	return disableItem(id, true);
     }
 
-    @PUT
+    @DELETE
     @Path("/{id}/enable")
     public Response enable(@PathParam("id") Long id) {
 	return disableItem(id, false);
@@ -79,7 +95,7 @@ public class ItemResource {
 	if (item == null) {
 	    return Response.status(Status.NOT_FOUND).build();
 	} else {
-	    item.setDisabled(true);
+	    item.setDisabled(disabled);
 	    item.setDate(new DateTime());
 	    ObjectifyHelper.save(item);
 	    return Response.ok(item).build();

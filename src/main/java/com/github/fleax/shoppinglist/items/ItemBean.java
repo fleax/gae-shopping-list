@@ -25,6 +25,7 @@ public class ItemBean {
 
     private String name;
 
+    @Index
     private boolean disabled;
 
     private DateTime date;

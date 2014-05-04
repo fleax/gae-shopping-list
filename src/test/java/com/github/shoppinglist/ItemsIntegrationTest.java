@@ -24,7 +24,7 @@ public class ItemsIntegrationTest extends LocalServerIntegrationTest {
     private static final String FRUIT = "Fruit";
 
     @Test
-    public void test1_list() {
+    public void test01_list() {
 	List<ItemBean> response = list(REST_ITEMS,
 		new GenericType<List<ItemBean>>() {
 		});
@@ -32,62 +32,55 @@ public class ItemsIntegrationTest extends LocalServerIntegrationTest {
     }
 
     @Test
-    public void test2_create() {
+    public void test02_create() {
 	ItemBean oranges = create(REST_ITEMS, new ItemBean(FRUIT, ORANGES),
 		ItemBean.class);
-	Assert.assertNotNull(oranges.getId());
-	Assert.assertEquals(FRUIT, oranges.getCategory());
-	Assert.assertEquals(ORANGES, oranges.getName());
+	assertItemBean(oranges, FRUIT, ORANGES, false);
     }
 
     @Test
-    public void test3_list_and_get() {
+    public void test03_list_and_get() {
 	List<ItemBean> response = list(REST_ITEMS,
 		new GenericType<List<ItemBean>>() {
 		});
 	Assert.assertEquals(1, response.size());
 	ItemBean bean = get(REST_ITEMS, response.get(0).getId(), ItemBean.class);
-	Assert.assertNotNull(bean.getId());
-	Assert.assertEquals(FRUIT, bean.getCategory());
-	Assert.assertEquals(ORANGES, bean.getName());
+	assertItemBean(bean, FRUIT, ORANGES, false);
     }
 
     @Test(expected = NotFoundException.class)
-    public void test4_get_not_found() {
+    public void test04_get_not_found() {
 	prepareRequest(REST_ITEMS + "/" + Long.MAX_VALUE).get(
 		ClientResponse.class);
     }
 
     @Test
-    public void test5_create() {
+    public void test05_create() {
 	ItemBean apples = create(REST_ITEMS, new ItemBean(FRUIT, APPLES),
 		ItemBean.class);
-	Assert.assertNotNull(apples.getId());
-	Assert.assertEquals(FRUIT, apples.getCategory());
-	Assert.assertEquals(APPLES, apples.getName());
+	assertItemBean(apples, FRUIT, APPLES, false);
     }
 
     @Test
-    public void test6_create() {
-	ItemBean apples = create(REST_ITEMS, new ItemBean(DRINKS, WATER),
+    public void test06_create() {
+	ItemBean response = create(REST_ITEMS, new ItemBean(DRINKS, WATER),
 		ItemBean.class);
-	Assert.assertNotNull(apples.getId());
-	Assert.assertEquals(DRINKS, apples.getCategory());
-	Assert.assertEquals(WATER, apples.getName());
+	assertItemBean(response, DRINKS, WATER, false);
     }
 
     @Test
-    public void test7_categories() {
-	List<ItemBean> fruits = prepareRequest("/rest/items/category/" + FRUIT)
-		.get(new GenericType<List<ItemBean>>() {
+    public void test07_categories() {
+	List<ItemBean> response = prepareRequest(
+		"/rest/items/category/" + FRUIT).get(
+		new GenericType<List<ItemBean>>() {
 		});
-	Assert.assertEquals(2, fruits.size());
-	Assert.assertEquals(APPLES, fruits.get(0).getName());
-	Assert.assertEquals(ORANGES, fruits.get(1).getName());
+	Assert.assertEquals(2, response.size());
+	assertItemBean(response.get(0), FRUIT, APPLES, false);
+	assertItemBean(response.get(1), FRUIT, ORANGES, false);
     }
 
     @Test
-    public void test8_categories() {
+    public void test08_categories() {
 	List<ItemBean> drinks = prepareRequest("/rest/items/category/" + DRINKS)
 		.get(new GenericType<List<ItemBean>>() {
 		});
@@ -96,17 +89,80 @@ public class ItemsIntegrationTest extends LocalServerIntegrationTest {
     }
 
     @Test
-    public void test9_sorted_list() {
+    public void test09_sorted_list() {
 	List<ItemBean> response = list(REST_ITEMS,
 		new GenericType<List<ItemBean>>() {
 		});
 	Assert.assertEquals(3, response.size());
-	Assert.assertEquals(DRINKS, response.get(0).getCategory());
-	Assert.assertEquals(WATER, response.get(0).getName());
-	Assert.assertEquals(FRUIT, response.get(1).getCategory());
-	Assert.assertEquals(APPLES, response.get(1).getName());
-	Assert.assertEquals(FRUIT, response.get(2).getCategory());
-	Assert.assertEquals(ORANGES, response.get(2).getName());
+	assertItemBean(response.get(0), DRINKS, WATER, false);
+	assertItemBean(response.get(1), FRUIT, APPLES, false);
+	assertItemBean(response.get(2), FRUIT, ORANGES, false);
+    }
+
+    @Test
+    public void test10_disable() {
+	List<ItemBean> response = list(REST_ITEMS,
+		new GenericType<List<ItemBean>>() {
+		});
+	// Disable Water
+	ItemBean bean = prepareRequest(
+		REST_ITEMS + "/" + response.get(0).getId() + "/disable")
+		.delete(ItemBean.class);
+	assertItemBean(bean, DRINKS, WATER, true);
+    }
+
+    @Test
+    public void test11_disabled_list() {
+	List<ItemBean> response = list(REST_ITEMS + "/disabled",
+		new GenericType<List<ItemBean>>() {
+		});
+	Assert.assertEquals(1, response.size());
+	assertItemBean(response.get(0), DRINKS, WATER, true);
+    }
+
+    @Test
+    public void test12_enabled_list() {
+	List<ItemBean> response = list(REST_ITEMS + "/enabled",
+		new GenericType<List<ItemBean>>() {
+		});
+	Assert.assertEquals(2, response.size());
+	assertItemBean(response.get(0), FRUIT, APPLES, false);
+	assertItemBean(response.get(1), FRUIT, ORANGES, false);
+    }
+
+    @Test
+    public void test13_enable() {
+	List<ItemBean> response = list(REST_ITEMS,
+		new GenericType<List<ItemBean>>() {
+		});
+	// Enable Water
+	ItemBean bean = prepareRequest(
+		REST_ITEMS + "/" + response.get(0).getId() + "/enable").delete(
+		ItemBean.class);
+	assertItemBean(bean, DRINKS, WATER, false);
+    }
+
+    @Test
+    public void test14_disabled_list() {
+	List<ItemBean> response = list(REST_ITEMS + "/disabled",
+		new GenericType<List<ItemBean>>() {
+		});
+	Assert.assertEquals(0, response.size());
+    }
+
+    @Test
+    public void test15_enabled_list() {
+	List<ItemBean> response = list(REST_ITEMS + "/enabled",
+		new GenericType<List<ItemBean>>() {
+		});
+	Assert.assertEquals(3, response.size());
+    }
+
+    private void assertItemBean(ItemBean item, String category, String name,
+	    boolean disabled) {
+	Assert.assertNotNull(item.getId());
+	Assert.assertEquals(category, item.getCategory());
+	Assert.assertEquals(name, item.getName());
     }
 
 }
