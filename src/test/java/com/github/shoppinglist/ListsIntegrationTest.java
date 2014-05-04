@@ -89,6 +89,20 @@ public class ListsIntegrationTest extends LocalServerIntegrationTest {
 	assertTrue(list.getItems().contains(new ItemBean(FRUIT, APPLES)));
     }
 
+    @Test
+    public void test06_deleteItems() {
+	// Remove one element from created list
+	List<ClientListBean> response = list(REST_LISTS,
+		new GenericType<List<ClientListBean>>() {
+		});
+	ClientListBean list = response.get(0);
+	ItemBean item = list.getItems().get(0);
+	list = prepareRequest(
+		REST_LISTS + "/" + list.getId() + "/delete/" + item.getId())
+		.delete(ClientListBean.class);
+	assertEquals(2, list.getItems().size());
+    }
+
     private void assertEmptyList(ClientListBean list) {
 	assertNotNull(list.getId());
 	assertNotNull(list.getDate());

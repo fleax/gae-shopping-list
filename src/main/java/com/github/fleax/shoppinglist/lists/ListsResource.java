@@ -58,7 +58,7 @@ public class ListsResource {
     public Response addItem(@PathParam("list") Long id, ItemBean item) {
 	ListBean list = ObjectifyHelper.get(user.getUserBean(), ListBean.class,
 		id);
-	// Force fecth from datastore to get proper Ref and return items list
+	// Fecth from datastore to get proper Ref and return items list
 	// updated
 	ItemBean itemDS = ObjectifyHelper.get(user.getUserBean(),
 		ItemBean.class, item.getId());
@@ -75,14 +75,16 @@ public class ListsResource {
     @Path("/{list}/delete/{item}")
     public Response deleteItem(@PathParam("list") Long id,
 	    @PathParam("item") Long item) {
-	ListBean list = ObjectifyService.ofy().load().type(ListBean.class)
-		.id(id).safeGet();
-	if (list == null) {
+	ListBean list = ObjectifyHelper.get(user.getUserBean(), ListBean.class,
+		id);
+	ItemBean itemDS = ObjectifyHelper.get(user.getUserBean(),
+		ItemBean.class, item);
+	if (list == null || itemDS == null) {
 	    return Response.status(Status.NOT_FOUND).build();
 	}
-	list.deleteItem(item);
+	list.deleteItem(Ref.create(itemDS));
 	list.setDate(new DateTime());
-	ObjectifyService.ofy().save().entity(list);
+	ObjectifyHelper.save(list);
 	return Response.ok(list).build();
     }
 

@@ -9,7 +9,6 @@ import org.joda.time.DateTime;
 import com.github.fleax.shoppinglist.ObjectifyHelper;
 import com.github.fleax.shoppinglist.UserBean;
 import com.github.fleax.shoppinglist.items.ItemBean;
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -53,13 +52,12 @@ public class ListBean {
      * 
      * @param item
      */
-    public void deleteItem(Long item) {
-	Ref<ItemBean> ref = Ref.create(Key.create(ItemBean.class, item));
+    public void deleteItem(Ref<ItemBean> item) {
 	if (this.items != null) {
-	    this.items.remove(ref);
+	    this.items.remove(item);
 	}
 	if (this.checkedItems != null) {
-	    this.checkedItems.remove(ref);
+	    this.checkedItems.remove(item);
 	}
     }
 
