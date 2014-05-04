@@ -14,7 +14,9 @@ import javax.ws.rs.core.Response.Status;
 import org.joda.time.DateTime;
 
 import com.github.fleax.shoppinglist.ObjectifyHelper;
+import com.github.fleax.shoppinglist.UserBean;
 import com.github.fleax.shoppinglist.items.ItemBean;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 
@@ -23,9 +25,22 @@ public class ListsResource {
 
     private final ListCompletedProcessor processor = new ListCompletedProcessor();
 
+    private UserBean getUserBean() {
+	String email = UserServiceFactory.getUserService().getCurrentUser()
+		.getEmail();
+	UserBean userBean = ObjectifyHelper.get(UserBean.class, email);
+	if (userBean == null) {
+	    userBean = new UserBean();
+	    userBean.setId(email);
+	    ObjectifyHelper.save(userBean);
+	}
+	return userBean;
+    }
+
     @GET
     public Response list() {
-	return Response.ok(ObjectifyHelper.list(ListBean.class)).build();
+	return Response.ok(ObjectifyHelper.list(getUserBean(), ListBean.class))
+		.build();
     }
 
     @POST

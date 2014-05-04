@@ -20,44 +20,60 @@ import javax.ws.rs.core.Response.Status;
 import org.joda.time.DateTime;
 
 import com.github.fleax.shoppinglist.ObjectifyHelper;
+import com.github.fleax.shoppinglist.UserBean;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.googlecode.objectify.Key;
 
 @Path("/items")
 public class ItemResource {
 
+    private UserBean getUserBean() {
+	String email = UserServiceFactory.getUserService().getCurrentUser()
+		.getEmail();
+	UserBean userBean = ObjectifyHelper.get(UserBean.class, email);
+	if (userBean == null) {
+	    userBean = new UserBean();
+	    userBean.setId(email);
+	    ObjectifyHelper.save(userBean);
+	}
+	return userBean;
+    }
+
     @GET
     public Response list() {
-	return Response.ok(sort(ObjectifyHelper.list(ItemBean.class))).build();
+	return Response.ok(
+		sort(ObjectifyHelper.list(getUserBean(), ItemBean.class)))
+		.build();
     }
 
     @GET
     @Path("/disabled")
     public Response listDisabled() {
 	return Response.ok(
-		sort(ObjectifyHelper.list(ItemBean.class, "disabled", true)))
-		.build();
+		sort(ObjectifyHelper.list(getUserBean(), ItemBean.class,
+			"disabled", true))).build();
     }
 
     @GET
     @Path("/enabled")
     public Response listEnabled() {
 	return Response.ok(
-		sort(ObjectifyHelper.list(ItemBean.class, "disabled", false)))
-		.build();
+		sort(ObjectifyHelper.list(getUserBean(), ItemBean.class,
+			"disabled", false))).build();
     }
 
     @GET
     @Path("/category/{name}")
     public Response searchByCategory(@PathParam("name") String name) {
 	return Response.ok(
-		sort(ObjectifyHelper.list(ItemBean.class, "category", name)))
-		.build();
+		sort(ObjectifyHelper.list(getUserBean(), ItemBean.class,
+			"category", name))).build();
     }
 
     @GET
     @Path("/{id}")
     public Response get(@PathParam("id") Long id) {
-	ItemBean item = ObjectifyHelper.get(ItemBean.class, id);
+	ItemBean item = ObjectifyHelper.get(getUserBean(), ItemBean.class, id);
 	return item != null ? Response.ok(item).build() : Response.status(
 		Status.NOT_FOUND).build();
     }
@@ -65,6 +81,7 @@ public class ItemResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(final ItemBean item) {
+	item.setUser(getUserBean());
 	item.setDate(new DateTime());
 	Key<ItemBean> key = ObjectifyHelper.save(item);
 	item.setId(key.getId());
@@ -91,7 +108,7 @@ public class ItemResource {
      * @return response after disabling or enabling an item
      */
     private Response disableItem(Long id, boolean disabled) {
-	ItemBean item = ObjectifyHelper.get(ItemBean.class, id);
+	ItemBean item = ObjectifyHelper.get(getUserBean(), ItemBean.class, id);
 	if (item == null) {
 	    return Response.status(Status.NOT_FOUND).build();
 	} else {

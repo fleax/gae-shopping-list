@@ -1,11 +1,15 @@
 package com.github.fleax.shoppinglist.items;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.joda.time.DateTime;
 
+import com.github.fleax.shoppinglist.UserBean;
+import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Parent;
 
 /**
  * A shopping list item
@@ -16,6 +20,10 @@ import com.googlecode.objectify.annotation.Index;
 @Entity
 @Cache
 public class ItemBean {
+
+    @Parent
+    @JsonIgnore
+    private Ref<UserBean> user;
 
     @Id
     private Long id;
@@ -168,4 +176,20 @@ public class ItemBean {
     public void setDisabled(boolean disabled) {
 	this.disabled = disabled;
     }
+
+    /**
+     * @return the user
+     */
+    public UserBean getUser() {
+	return user != null ? user.getValue() : null;
+    }
+
+    /**
+     * @param user
+     *            the user to set
+     */
+    public void setUser(UserBean user) {
+	this.user = Ref.create(user);
+    }
+
 }

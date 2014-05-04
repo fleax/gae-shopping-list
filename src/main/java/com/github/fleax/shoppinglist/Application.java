@@ -26,6 +26,7 @@ public class Application extends ResourceConfig {
 	ObjectifyService.factory().getTranslators()
 		.add(new DateTimeZoneTranslatorFactory());
 
+	ObjectifyService.register(UserBean.class);
 	ObjectifyService.register(ListBean.class);
 	ObjectifyService.register(ItemBean.class);
 	register(ItemResource.class);

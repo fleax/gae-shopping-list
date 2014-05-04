@@ -25,30 +25,57 @@ public class ObjectifyHelper {
     }
 
     /**
+     * @param ancestor
      * @param type
      * @return get object by type and id
      */
-    public static <T> T get(Class<T> type, Long id) {
+    public static <T> T get(Object ancestor, Class<T> type, Long id) {
+	if (ancestor == null) {
+	    return ObjectifyService.ofy().load().type(type).id(id).getValue();
+	} else {
+	    return ObjectifyService.ofy().load().type(type).parent(ancestor)
+		    .id(id).getValue();
+	}
+    }
+
+    /**
+     * @param type
+     * @return get object by type and id
+     */
+    public static <T> T get(Class<T> type, String id) {
 	return ObjectifyService.ofy().load().type(type).id(id).getValue();
     }
 
     /**
+     * @param ancestor
      * @param type
      * @return list of objects of given type
      */
-    public static <T> List<T> list(Class<T> type) {
-	return ObjectifyService.ofy().load().type(type).list();
+    public static <T> List<T> list(Object ancestor, Class<T> type) {
+	if (ancestor == null) {
+	    return ObjectifyService.ofy().load().type(type).list();
+	} else {
+	    return ObjectifyService.ofy().load().type(type).ancestor(ancestor)
+		    .list();
+	}
     }
 
     /**
+     * @param ancestor
      * @param type
      * @param filter
      * @param value
      * @return list of objects of given type, applying filter
      */
-    public static <T> List<T> list(Class<T> type, String filter, Object value) {
-	return ObjectifyService.ofy().load().type(type).filter(filter, value)
-		.list();
+    public static <T> List<T> list(Object ancestor, Class<T> type,
+	    String filter, Object value) {
+	if (ancestor == null) {
+	    return ObjectifyService.ofy().load().type(type)
+		    .filter(filter, value).list();
+	} else {
+	    return ObjectifyService.ofy().load().type(type).ancestor(ancestor)
+		    .filter(filter, value).list();
+	}
     }
 
     /**
